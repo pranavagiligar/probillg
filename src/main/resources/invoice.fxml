@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--<?import com.probill.views.TableViewWithVisibleRowCount?>-->
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.TableView?>
+<VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+      prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+    <BorderPane>
+        <center>
+            <Text style="-fx-font-weight: bold; -fx-font-size: 20;" text="Invoice" textAlignment="CENTER"
+                  underline="true"/>
+        </center>
+        <right>
+            <Text fx:id="pageNumberText" strokeType="OUTSIDE" strokeWidth="0.0" text="1" textAlignment="RIGHT"
+                  BorderPane.alignment="CENTER">
+                <BorderPane.margin>
+                    <Insets right="5.0"/>
+                </BorderPane.margin>
+            </Text>
+        </right>
+    </BorderPane>
+    <BorderPane prefHeight="200.0" prefWidth="800.0">
+        <left>
+            <HBox alignment="CENTER_LEFT" BorderPane.alignment="CENTER">
+                <VBox alignment="CENTER_LEFT">
+                    <Text fx:id="companyName"/>
+                    <Text fx:id="address"/>
+                    <Text fx:id="phone"/>
+                    <Text fx:id="gstNumber"/>
+                    <Text fx:id="customerName"/>
+                    <Text fx:id="customerAddress"/>
+                    <Text fx:id="customerPhone"/>
+                </VBox>
+            </HBox>
+        </left>
+        <right>
+            <!-- Billing details -->
+            <HBox alignment="CENTER_LEFT" BorderPane.alignment="CENTER">
+                <VBox alignment="CENTER_LEFT">
+                    <Text fx:id="invoiceNumber"/>
+                    <Text fx:id="invoiceDate"/>
+                    <Text fx:id="eSugamNumber"/>
+                    <Text fx:id="purchaseOrder"/>
+                    <Text fx:id="purchaseOrderDate"/>
+                    <Text fx:id="remark"/>
+                    <Text/>
+                </VBox>
+            </HBox>
+        </right>
+    </BorderPane>
+    <BorderPane fx:id="carryPane" prefHeight="18.0" prefWidth="800.0">
+        <right>
+            <Text fx:id="carryForwardPrice" strokeType="OUTSIDE" strokeWidth="0.0" text="Text"
+                  BorderPane.alignment="CENTER">
+                <BorderPane.margin>
+                    <Insets right="30.0"/>
+                </BorderPane.margin>
+            </Text>
+        </right>
+    </BorderPane>
+    <!-- Breakup and taxes -->
+    <TableView fx:id="tableView" prefHeight="500.0" prefWidth="800.0"/>
+    <BorderPane prefHeight="200.0" prefWidth="200.0">
+        <bottom>
+            <BorderPane prefHeight="54.0" prefWidth="800.0" BorderPane.alignment="CENTER">
+                <left>
+                    <!-- New payable nad signature -->
+                    <VBox alignment="CENTER" BorderPane.alignment="CENTER">
+                        <Text fx:id="amountInWords"/>
+                        <Text fx:id="disclaimer"/>
+                    </VBox>
+                </left>
+                <right>
+                    <VBox alignment="CENTER" style="-fx-padding: 6;" BorderPane.alignment="CENTER">
+                        <Text text="For company"/>
+                        <Text text="Computer generated invoice don't need signature"/>
+                        <opaqueInsets>
+                            <Insets/>
+                        </opaqueInsets>
+                    </VBox>
+                </right>
+            </BorderPane>
+        </bottom>
+        <right>
+            <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                <children>
+                    <VBox alignment="CENTER_LEFT" prefHeight="350.0" prefWidth="500.0">
+                        <Text fx:id="pageTotal" text="Page total: "/>
+                        <Text fx:id="carryForwardLabel" text="* Carry forwarded to next page"/>
+                        <Text fx:id="cGstText"/>
+                        <Text fx:id="sGstText"/>
+                        <Text fx:id="discount"/>
+                        <Text fx:id="netAmount"/>
+                    </VBox>
+                </children>
+            </HBox>
+        </right>
+    </BorderPane>
+</VBox>

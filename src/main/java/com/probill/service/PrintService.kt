@@ -1,0 +1,60 @@
+package com.probill.service
+
+import javafx.print.*
+import javafx.scene.Node
+import javafx.scene.transform.Scale
+import javafx.scene.transform.Transform
+import javafx.stage.Stage
+
+class PrintService {
+
+    // JavaFx by RIP
+    // https://docs.oracle.com/javase/tutorial/2d/printing/printable.html
+    fun selectPrinter() {
+        Printer.getAllPrinters().forEach {
+            val pJ = PrinterJob.createPrinterJob(it)
+            if (pJ != null) {
+                val success = pJ.showPrintDialog(Stage()) // this is the important line
+                if (success) {
+                    pJ.endJob()
+                }
+            }
+        }
+    }
+
+    fun print(node: Node) {
+        val printer: Printer = Printer.getDefaultPrinter()
+        val pageLayout: PageLayout = printer.createPageLayout(
+            Paper.LEGAL,
+            PageOrientation.PORTRAIT,
+            .1,
+            .1,
+            .1,
+            .1
+        )
+//        val scaleX: Double = pageLayout.printableWidth / node.boundsInParent.width
+//        val scaleY: Double = pageLayout.printableHeight / node.boundsInParent.height
+//        node.transforms.add(Scale(scaleX, scaleY))
+        node.transforms.add(Transform.translate(100.0, 100.0))
+        node.prefHeight(pageLayout.printableHeight)
+        node.prefWidth(pageLayout.printableWidth)
+        node.transforms.add(Scale(0.5, 0.5))
+
+        val job: PrinterJob? = PrinterJob.createPrinterJob()
+        if (job != null /*&& job.showPrintDialog(sceneNode.scene.window)*/) {
+//            job.jobStatusProperty().addListener { observable, oldValue, newValue ->
+//                when (observable.value) {
+//                    PrinterJob.JobStatus.PRINTING -> Log.d(TAG, "Printing ${observable.value}")
+//                    PrinterJob.JobStatus.CANCELED -> Log.d(TAG, "Printing ${observable.value}")
+//                    PrinterJob.JobStatus.NOT_STARTED -> Log.d(TAG, "Printing ${observable.value}")
+//                    PrinterJob.JobStatus.DONE -> Log.d(TAG, "Printing ${observable.value}")
+//                    PrinterJob.JobStatus.ERROR -> Log.d(TAG, "Printing ${observable.value}")
+//                }
+//            }
+            val success: Boolean = job.printPage(pageLayout, node)
+            if (success) {
+                job.endJob()
+            }
+        }
+    }
+}

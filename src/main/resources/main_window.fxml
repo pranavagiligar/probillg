@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<TabPane maxHeight="Infinity" maxWidth="Infinity" minHeight="500.0" minWidth="1000.0" prefHeight="500.0"
+         prefWidth="800.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/11.0.1"
+         xmlns:fx="http://javafx.com/fxml/1">
+
+    <Tab text="Create bill">
+        <SplitPane dividerPositions="0.415" prefHeight="500.0" prefWidth="1000.0">
+            <VBox>
+                <GridPane alignment="CENTER" hgap="4.0" prefHeight="357.0" prefWidth="496.0" vgap="8.0">
+                    <Label text="Name"/>
+                    <TextField fx:id="nameField" GridPane.columnIndex="1"/>
+                    <Label text="Phone" GridPane.rowIndex="1"/>
+                    <TextField fx:id="phoneField" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                    <Label text="Address" GridPane.rowIndex="2"/>
+                    <TextField fx:id="addressField" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                    <Label text="ESugam No" GridPane.rowIndex="3"/>
+                    <TextField fx:id="eSugamField" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                    <Label text="Remark" GridPane.rowIndex="4"/>
+                    <TextField fx:id="remarkFiled" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+                    <Button mnemonicParsing="false" onAction="#onPreviewClicked" prefHeight="32.0" prefWidth="111.0"
+                            text="Preview" GridPane.rowIndex="7"/>
+                    <Button accessibleHelp="Submit to print the bill" alignment="CENTER" contentDisplay="CENTER"
+                            mnemonicParsing="false" onAction="#onSubmitClicked" prefHeight="33.0" prefWidth="151.0"
+                            text="Generate" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="7"/>
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="10.0" prefWidth="100.0"/>
+                        <ColumnConstraints/>
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+                        <RowConstraints/>
+                        <RowConstraints/>
+                    </rowConstraints>
+                    <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                    </padding>
+                </GridPane>
+                <GridPane alignment="CENTER" hgap="2.0">
+                    <HBox fx:id="gstBox" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                        <Label text="CGST: "/>
+                        <Label fx:id="totalGstField"/>
+                    </HBox>
+                    <HBox fx:id="sgstBox" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                        <Label text="SGST: "/>
+                        <Label fx:id="totalSgstField"/>
+                    </HBox>
+                    <HBox fx:id="discountBox" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                        <Label text="Discount: "/>
+                        <Label fx:id="totalDiscountField"/>
+                    </HBox>
+                    <HBox fx:id="netBox" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <Label text="Net: "/>
+                        <Label fx:id="totalNetField"/>
+                    </HBox>
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="248.0" minWidth="10.0" prefWidth="248.0"/>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="248.0" minWidth="10.0" prefWidth="248.0"/>
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                    </rowConstraints>
+                    <padding>
+                        <Insets left="5.0" right="5.0"/>
+                    </padding>
+                </GridPane>
+            </VBox>
+            <VBox alignment="CENTER" spacing="5.0">
+                <Label text="Items"/>
+                <TableView fx:id="table" visible="false"/>
+                <HBox alignment="CENTER" spacing="10.0">
+                    <Button fx:id="batchItemButton" mnemonicParsing="false" onAction="#onBatchItemClicked"
+                            text="Batch Entry"/>
+                    <VBox alignment="CENTER">
+                        <Label text="Add an item"/>
+                        <ChoiceBox fx:id="itemsList" prefHeight="28.0" prefWidth="155.0"/>
+                    </VBox>
+                    <VBox alignment="CENTER">
+                        <HBox alignment="CENTER" spacing="5.0">
+                            <children>
+                                <Label text="Quantity"/>
+                                <Label fx:id="unitField"/>
+                            </children>
+                        </HBox>
+                        <TextField fx:id="quantityField"/>
+                    </VBox>
+                    <VBox alignment="CENTER">
+                        <Button mnemonicParsing="false" onAction="#onAddItem" prefHeight="32.0" prefWidth="84.0"
+                                text="Add"/>
+                    </VBox>
+                </HBox>
+                <padding>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                </padding>
+            </VBox>
+        </SplitPane>
+
+    </Tab>
+    <Tab text="View">
+        <BorderPane prefHeight="500" prefWidth="800.0">
+            <center>
+                <TableView fx:id="billTableView" prefHeight="393.0" prefWidth="1000.0" BorderPane.alignment="CENTER"/>
+            </center>
+            <top>
+                <HBox alignment="CENTER" prefHeight="60.0" prefWidth="1000.0" spacing="20.0"
+                      BorderPane.alignment="CENTER">
+                    <TextField fx:id="billSearchField" promptText="Invoice ID"/>
+                    <Button mnemonicParsing="false" onAction="#onSearchClicked" text="Search"/>
+                </HBox>
+            </top>
+            <!--            <bottom>-->
+            <!--                <Pagination prefHeight="61.0" prefWidth="1000.0" BorderPane.alignment="CENTER"/>-->
+            <!--            </bottom>-->
+        </BorderPane>
+    </Tab>
+    <Tab text="Manage Items">
+        <SplitPane dividerPositions="0.4" prefHeight="160.0" prefWidth="200.0">
+            <VBox prefHeight="441.0" prefWidth="441.0">
+                <padding>
+                    <Insets bottom="50.0" left="50.0" right="50.0" top="50.0"/>
+                </padding>
+                <GridPane alignment="CENTER" prefHeight="435.0" prefWidth="496.0">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="244.0" minWidth="10.0" prefWidth="90.0"/>
+                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="444.0" minWidth="10.0"
+                                           prefWidth="206.0"/>
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                    </rowConstraints>
+                    <Label text="Name"/>
+                    <TextField fx:id="itemNameField" prefHeight="0.0" prefWidth="344.0" GridPane.columnIndex="1"/>
+                    <Label text="Rate" GridPane.rowIndex="1"/>
+                    <TextField fx:id="itemRateField" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                    <Label text="Unit" GridPane.rowIndex="2"/>
+                    <ChoiceBox fx:id="itemUnitField" prefHeight="28.0" prefWidth="236.0" GridPane.columnIndex="1"
+                               GridPane.rowIndex="2"/>
+                    <Label text="Discount(%)" GridPane.rowIndex="3"/>
+                    <TextField fx:id="itemDiscountField" prefHeight="26.0" prefWidth="163.0" GridPane.columnIndex="1"
+                               GridPane.rowIndex="3"/>
+                    <Label text="GST(%)" GridPane.rowIndex="4"/>
+                    <TextField fx:id="itemGstField" prefHeight="26.0" prefWidth="173.0" GridPane.columnIndex="1"
+                               GridPane.rowIndex="4"/>
+                    <Label text="SGST(%)" GridPane.rowIndex="5"/>
+                    <TextField fx:id="itemSgstField" prefHeight="26.0" prefWidth="196.0" GridPane.columnIndex="1"
+                               GridPane.rowIndex="5"/>
+                    <Button mnemonicParsing="false" onAction="#onItemAddClicked" prefHeight="32.0" prefWidth="247.0"
+                            text="ADD" GridPane.columnIndex="1" GridPane.rowIndex="7"/>
+                </GridPane>
+            </VBox>
+            <TableView fx:id="manageItemTableView" prefHeight="441.0" prefWidth="582.0"/>
+        </SplitPane>
+    </Tab>
+    <Tab text="Setting">
+        <BorderPane>
+            <top>
+                <Button onAction="#onLogoutClicked" mnemonicParsing="false" text="Logout"
+                        BorderPane.alignment="TOP_RIGHT">
+                    <BorderPane.margin>
+                        <Insets right="50.0" top="10.0"/>
+                    </BorderPane.margin>
+                </Button>
+            </top>
+        </BorderPane>
+    </Tab>
+</TabPane>

@@ -1,0 +1,76 @@
+plugins {
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.8'
+    id 'org.jetbrains.kotlin.jvm' version '1.4.10'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+def platform = 'linux'
+
+//def platform = "Unknown OS"
+//if (OperatingSystem.isWindows) platform = "win"
+//else if (OperatingSystem.isLinux) platform = "linux"
+//else if (OperatingSystem.isMacOsX) platform = "mac"
+//else println("Unknown OS")
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    /* uncomment for cross-platform jar: */
+    runtimeOnly "org.openjfx:javafx-graphics:$javafx.version:win"
+    runtimeOnly "org.openjfx:javafx-graphics:$javafx.version:linux"
+    runtimeOnly "org.openjfx:javafx-graphics:$javafx.version:mac"
+    implementation("org.openjfx:javafx-fxml:11:$platform")
+    implementation("org.openjfx:javafx-web:11:$platform")
+    implementation("org.openjfx:javafx-media:11:$platform")
+    implementation("org.openjfx:javafx-swing:11:$platform")
+    implementation("org.openjfx:javafx-base:11:$platform")
+    implementation("org.openjfx:javafx-graphics:11:$platform")
+    implementation("org.openjfx:javafx-controls:11:$platform")
+    compile group: 'org.openjfx', name: 'javafx-fxml', version: '11'
+
+    compile group: 'org.apache.derby', name: 'derby', version: '10.14.2.0'
+    compile group: 'org.apache.derby', name: 'derbytools', version: '10.14.2.0'
+    runtime group: 'org.apache.derby', name: 'derby', version: '10.14.2.0'
+    runtime group: 'org.apache.derby', name: 'derbytools', version: '10.14.2.0'
+
+    implementation 'com.squareup.retrofit2:retrofit:2.7.2'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.9.0'
+    implementation 'com.squareup.okhttp3:okhttp-urlconnection:3.7.0'
+    implementation 'com.squareup.okhttp3:okhttp-ws:3.4.2'
+    implementation 'com.squareup.retrofit2:adapter-java8:2.7.2'
+    implementation 'com.squareup.retrofit2:converter-gson:2.7.2'
+
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core-common:1.1.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.1.0'
+}
+
+javafx {
+    version = "11"
+    modules = [ 'javafx.controls', 'javafx.graphics', 'javafx.fxml', 'javafx.web', 'javafx.media', 'javafx.swing', 'javafx.base']
+}
+
+mainClassName = 'com.probill.MyApp'
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.probill.Launcher'
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
