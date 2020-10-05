@@ -785,7 +785,7 @@ class MainWindow(var stage: Stage) : BaseUi() {
                         offset == papers - 1
                     )
                 )
-                PrintService().print(box, stage)
+                PrintService().print(box, stage, bill.name)
                 offset++
             }
             reset()

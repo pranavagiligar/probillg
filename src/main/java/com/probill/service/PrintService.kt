@@ -22,7 +22,7 @@ class PrintService {
         }
     }
 
-    fun print(node: Node, stage: Stage) {
+    fun print(node: Node, stage: Stage, jobName: String) {
         val printer: Printer = Printer.getDefaultPrinter()
         val pageLayout: PageLayout = printer.createPageLayout(
             Paper.A5,
@@ -43,6 +43,7 @@ class PrintService {
 
         val job: PrinterJob? = PrinterJob.createPrinterJob()
         job?.jobSettings?.printColor = PrintColor.MONOCHROME
+        job?.jobSettings?.jobName = jobName
         if (job != null/* && job.showPrintDialog(stage)*/) {
 //            job.jobStatusProperty().addListener { observable, oldValue, newValue ->
 //                when (observable.value) {
