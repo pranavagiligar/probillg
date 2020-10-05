@@ -18,6 +18,8 @@ import javafx.scene.Parent
 import javafx.scene.Scene
 import javafx.scene.control.*
 import javafx.scene.control.cell.PropertyValueFactory
+import javafx.scene.image.Image
+import javafx.scene.image.ImageView
 import javafx.scene.input.KeyCode
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
@@ -27,7 +29,9 @@ import javafx.util.StringConverter
 import kotlinx.coroutines.GlobalScope
 import java.sql.Timestamp
 import java.util.*
+import javax.imageio.ImageIO
 import kotlin.concurrent.timer
+
 
 class MainWindow(var stage: Stage) : BaseUi() {
 
@@ -40,6 +44,7 @@ class MainWindow(var stage: Stage) : BaseUi() {
     lateinit var eSugamField: TextField
     lateinit var remarkFiled: TextField
     lateinit var quantityField: TextField
+    lateinit var eSugamLabel: Label
 
     lateinit var totalGstField: Label
     lateinit var totalSgstField: Label
@@ -68,6 +73,9 @@ class MainWindow(var stage: Stage) : BaseUi() {
     lateinit var itemUnitField: ChoiceBox<Unit>
     lateinit var manageItemTableView: TableView<Item>
 
+    // Setting tab
+    lateinit var eSugamCheckBox: CheckBox
+
     private var itemsIndex = 0
 
     private var totalGst = 0.0
@@ -87,7 +95,7 @@ class MainWindow(var stage: Stage) : BaseUi() {
         var name: String,
         var rate: Double,
         var qty: Float,
-        var unit: String
+        var unit: String,
     )
 
     fun initialize() {
@@ -149,10 +157,32 @@ class MainWindow(var stage: Stage) : BaseUi() {
                         Log.e(TAG, "user validation polling failure")
                     }
                 }
+                updateConfigurable()
+                populateSetting()
             } else {
                 stage.close()
                 openLogin()
             }
+        }
+    }
+
+    private fun updateConfigurable() {
+        user?.let {
+            AppDb.settingDao
+                .getSettingForUsername(it.username)?.let { setting ->
+                    eSugamField.isDisable = !setting.eSugamRequired
+                    eSugamLabel.isDisable = !setting.eSugamRequired
+                    if (!setting.eSugamRequired) eSugamField.text = ""
+                }
+        }
+    }
+
+    private fun populateSetting() {
+        user?.let {
+            AppDb.settingDao
+                .getSettingForUsername(it.username)?.let { setting ->
+                    eSugamCheckBox.isSelected = setting.eSugamRequired
+                }
         }
     }
 
@@ -180,7 +210,7 @@ class MainWindow(var stage: Stage) : BaseUi() {
         }
 
         itemUnitField.items.addAll(
-            Unit.GRAM, Unit.KG, Unit.TON
+            Unit.GRAM, Unit.KG, Unit.QTL, Unit.TON
         )
         itemUnitField.value = Unit.KG
     }
@@ -271,7 +301,7 @@ class MainWindow(var stage: Stage) : BaseUi() {
                     }
 
                     init {
-                        btn.setOnAction { event: ActionEvent? ->
+                        btn.setOnAction {
                             table.items.remove(table.items[index])
                             updateTotals()
                             recalculateBreakupIds()
@@ -321,21 +351,33 @@ class MainWindow(var stage: Stage) : BaseUi() {
             Callback<TableColumn<Item?, Void?>?, TableCell<Item?, Void?>?> {
                 object : TableCell<Item?, Void?>() {
                     private lateinit var box: HBox
-                    private val modify = Button("Modify")
-                    private val delete = Button("Delete")
+                    private val modify = Button()
+                    private val delete = Button()
                     override fun updateItem(item: Void?, empty: Boolean) {
                         super.updateItem(item, empty)
                         graphic = if (empty) {
                             null
                         } else {
+                            val updateUrl = javaClass.getResource("/ic_edit.png")
+                            val deleteUrl = javaClass.getResource("/ic_delete.png")
+                            val editView = ImageView(Image(updateUrl.toString()))
+                            val deleteView = ImageView(Image(deleteUrl.toString()))
+                            editView.fitHeight = 12.0
+                            editView.isPreserveRatio = true
+                            deleteView.fitHeight = 12.0
+                            deleteView.isPreserveRatio = true
+                            modify.graphic = editView
+                            delete.graphic = deleteView
+                            modify.setPrefSize(10.0, 10.0)
+                            delete.setPrefSize(10.0, 10.0)
                             box = HBox(modify, delete)
-                            box.spacing = 10.0
+                            box.spacing = 2.0
                             box
                         }
                     }
 
                     init {
-                        modify.setOnAction { event: ActionEvent? ->
+                        modify.setOnAction {
                             val loader = FXMLLoader()
                             val stage = Stage()
                             loader.location =
@@ -356,14 +398,15 @@ class MainWindow(var stage: Stage) : BaseUi() {
                             stage.showAndWait()
                         }
 
-                        delete.setOnAction { event: ActionEvent? ->
+                        delete.setOnAction {
                             val alert = Alert(
                                 Alert.AlertType.CONFIRMATION,
                                 "Do you want to delete the Item "
                                     + "[${manageItemTableView.items[index].name}]",
                                 ButtonType.OK, ButtonType.CANCEL
                             )
-                            val result = alert.showAndWait().orElse(ButtonType.NO)
+                            val result =
+                                alert.showAndWait().orElse(ButtonType.NO)
                             if (result == ButtonType.OK) {
                                 actionOnItemDelete(manageItemTableView.items[index])
                             }
@@ -374,33 +417,32 @@ class MainWindow(var stage: Stage) : BaseUi() {
         return colBtn
     }
 
-    private fun recalculateBreakupIds() {
-        itemsIndex = 0
-        table.items.map { breakup ->
-            breakup.id = ++itemsIndex
-            breakup
-        }
-    }
-
     fun onAddItem(action: ActionEvent) {
         val selectedItem = itemsList.value
-        var selectedQty: Float = 0.0f
+        var selectedQty = 0.0f
         if (quantityField.text.isNotEmpty()) {
             selectedQty = quantityField.text.toFloat()
         }
         if (selectedItem == null || selectedQty == 0.0f) {
             Alert(Alert.AlertType.ERROR, "Invalid input").showAndWait()
         } else {
-            table.items.add(
-                Breakup(
-                    selectedItem,
-                    ++itemsIndex,
-                    selectedItem.name,
-                    selectedItem.price.totalPrice,
-                    selectedQty,
-                    selectedItem.unit.name
+            if (
+                !mergeItemIfExists(selectedItem.name, selectedQty)
+                && selectedQty > 0
+            ) {
+                table.items.add(
+                    Breakup(
+                        selectedItem,
+                        ++itemsIndex,
+                        selectedItem.name,
+                        selectedItem.price.totalPrice,
+                        selectedQty,
+                        selectedItem.unit.name
+                    )
                 )
-            )
+            }
+            table.refresh()
+            recalculateBreakupIds()
             updateTotals()
         }
     }
@@ -444,8 +486,14 @@ class MainWindow(var stage: Stage) : BaseUi() {
         loader.location = javaClass.getResource("/batch_entry.fxml")
         loader.setController(
             BatchEntry {
-                table.items.addAll(it)
+                it.forEach { breakup ->
+                    if (!mergeItemIfExists(breakup.name, breakup.qty)) {
+                        table.items.add(breakup)
+                    }
+                }
+                table.refresh()
                 recalculateBreakupIds()
+                updateTotals()
                 stage.close()
             }
         )
@@ -526,6 +574,17 @@ class MainWindow(var stage: Stage) : BaseUi() {
         stage.close()
     }
 
+    fun eSugamSettingsClicked(action: ActionEvent) {
+        user?.let {
+            AppDb.settingDao
+                .getSettingForUsername(it.username)?.let { setting ->
+                    setting.eSugamRequired = eSugamCheckBox.isSelected
+                    AppDb.settingDao.update(setting)
+                    updateConfigurable()
+                }
+        }
+    }
+
     private fun actionOnItemModify() {
         val items = AppDb.itemDao.readAll()
         manageItemTableView.items.clear()
@@ -558,7 +617,26 @@ class MainWindow(var stage: Stage) : BaseUi() {
             !isNullOrEmpty(phoneField.text) &&
             RegexUtils.matchPhone(phoneField.text.trim()) &&
             !isNullOrEmpty(addressField.text) &&
-            !isNullOrEmpty(eSugamField.text)
+            (eSugamField.isDisable || !isNullOrEmpty(eSugamField.text))
+
+    private fun mergeItemIfExists(selectedItem: String, selectedQty: Float): Boolean {
+        val item = table.items.firstOrNull { it.name == selectedItem }
+        item?.let {
+            it.qty += selectedQty
+            if (it.qty <= 0) {
+                table.items.remove(it)
+            }
+            return true
+        }
+        return false
+    }
+
+    private fun recalculateBreakupIds() {
+        itemsIndex = 0
+        table.items.forEachIndexed { index, breakup ->
+            breakup.id = index + 1
+        }
+    }
 
     private fun updateTotals() {
         totalGst = 0.0
@@ -591,7 +669,7 @@ class MainWindow(var stage: Stage) : BaseUi() {
 
     private fun calculateItemsAmount(
         gst: Double, sGst: Double, discount: Double,
-        rate: Double, qty: Float, calcTotal: Boolean = true
+        rate: Double, qty: Float, calcTotal: Boolean = true,
     ): Double {
         var total = 0.0
         total += (rate * qty)
@@ -659,7 +737,7 @@ class MainWindow(var stage: Stage) : BaseUi() {
 
     private fun showPreview(
         bill: Bill,
-        breakups: List<com.probill.model.Breakup>
+        breakups: List<com.probill.model.Breakup>,
     ) {
         Platform.runLater {
             val node = Invoice.createInvoice(
@@ -692,7 +770,7 @@ class MainWindow(var stage: Stage) : BaseUi() {
                             breakups, offset - 1
                         ) + carry
                     else 0.0
-                box.spacing = 50.0
+                box.spacing = 15.0
                 box.children.addAll(
                     Invoice.createInvoice(
                         bill,
@@ -707,7 +785,7 @@ class MainWindow(var stage: Stage) : BaseUi() {
                         offset == papers - 1
                     )
                 )
-                PrintService().print(box)
+                PrintService().print(box, stage)
                 offset++
             }
             reset()
@@ -716,7 +794,7 @@ class MainWindow(var stage: Stage) : BaseUi() {
 
     private fun getCarryPrice(
         breakups: List<com.probill.model.Breakup>,
-        offset: Int
+        offset: Int,
     ): Double {
         var total = 0.0
         var start = offset * Invoice.MAX_ITEM_COUNT

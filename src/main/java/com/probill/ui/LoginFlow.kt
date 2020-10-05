@@ -24,6 +24,7 @@ import kotlinx.coroutines.GlobalScope
 import java.net.URL
 import java.sql.Timestamp
 import java.util.*
+import kotlin.system.exitProcess
 
 class LoginFlow(private val primaryStage: Stage) : Initializable {
 
@@ -46,6 +47,9 @@ class LoginFlow(private val primaryStage: Stage) : Initializable {
                 javaClass.getResource("/application.css").toExternalForm()
             )
             stage.title = Constant.APP_NAME
+            stage.setOnCloseRequest {
+                exitProcess(0)
+            }
             stage.scene = Scene(root)
             parentStage.close()
             stage.show()
@@ -106,6 +110,7 @@ class LoginFlow(private val primaryStage: Stage) : Initializable {
             val existingSetting =
                 AppDb.settingDao.getSettingForUsername(user.username)
             if (existingSetting != null) {
+                setting.id = existingSetting.id
                 AppDb.settingDao.update(setting)
             } else {
                 AppDb.settingDao.insert(setting)

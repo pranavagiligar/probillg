@@ -65,7 +65,8 @@ class SettingDao: BaseDao<Setting>() {
 
     fun getSettingForUsername(username: String): Setting? {
         AppDb.connection.prepareStatement(
-            "SELECT * FROM $tableName WHERE $USERNAME = ?"
+            "SELECT * FROM $tableName WHERE $USERNAME = ? ORDER BY $ID DESC "
+                + "FETCH FIRST 1 ROWS ONLY"
         )?.apply {
             this.setString(1, username)
             this.executeQuery()?.let {

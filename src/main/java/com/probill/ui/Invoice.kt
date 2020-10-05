@@ -4,6 +4,8 @@ import com.probill.model.Bill
 import com.probill.model.Price
 import com.probill.repository.db.AppDb
 import com.probill.utility.DateTimeUtils
+import com.probill.utility.GeneralUtils
+import com.probill.utility.GeneralUtils.isNullOrEmpty
 import javafx.fxml.FXMLLoader
 import javafx.fxml.Initializable
 import javafx.scene.Parent
@@ -16,6 +18,7 @@ import javafx.scene.layout.BorderPane
 import javafx.scene.text.Text
 import javafx.util.Callback
 import java.net.URL
+import java.text.DecimalFormat
 import java.util.*
 
 class Invoice(
@@ -23,7 +26,7 @@ class Invoice(
     private var offset: Int,
     private val carry: Double,
     private val isLast: Boolean,
-    private val isPreview: Boolean = false
+    private val isPreview: Boolean = false,
 ) : Initializable {
 
     companion object {
@@ -34,7 +37,7 @@ class Invoice(
             bill: Bill, offset: Int,
             carry: Double, isLast: Boolean,
             isPreview: Boolean = false,
-            breakups: List<com.probill.model.Breakup>? = null
+            breakups: List<com.probill.model.Breakup>? = null,
         ): Parent {
             val loader = FXMLLoader()
             loader.location = javaClass.getResource("/invoice.fxml")
@@ -75,13 +78,16 @@ class Invoice(
     lateinit var discount: Text
     lateinit var netAmount: Text
 
-    lateinit var amountInWords: Text // TODO: implement
+    lateinit var amountInWords: Text
     lateinit var disclaimer: Text    // TODO: implement
 
     private var totalGst = 0.0
     private var totalSgst = 0.0
     private var totalDiscount = 0.0
     private var totalAmount = 0.0
+
+    val decimalFormat = DecimalFormat("0.00")
+    val currencyFormat = DecimalFormat("##,##,###.00")
 
     var breakups: List<com.probill.model.Breakup>? = null
 
@@ -92,23 +98,34 @@ class Invoice(
         var rate: Double,
         var unit: String,
         var gstInfo: String,
-        var amount: Double
+        var amount: Double,
     )
 
     override fun initialize(location: URL?, resources: ResourceBundle?) {
         pageNumberText.text = (offset + 1).toString()
         val infoFormat = "%-8s" // Max Length is from Company
-        companyName.text = "$infoFormat: ${bill.createdBy.company}".format("Company")
-        address.text = "$infoFormat: ${bill.createdBy.address}".format("Address")
-        phone.text = "$infoFormat: ${bill.createdBy.phone}".format("Phone")
-        gstNumber.text = "$infoFormat: ${bill.createdBy.gstNumber}".format("GST No")
-        customerName.text = "$infoFormat: ${bill.name}".format("Customer name")
-        customerAddress.text = "$infoFormat: ${bill.address}".format("Customer address")
-        customerPhone.text = "$infoFormat: ${bill.phone}".format("Customer phone")
+        companyName.text = "$infoFormat: ${bill.createdBy.company}"
+            .format("Company")
+        address.text = "$infoFormat: ${bill.createdBy.address}"
+            .format("Address")
+        phone.text = "$infoFormat: ${bill.createdBy.phone}"
+            .format("Phone")
+        gstNumber.text = "$infoFormat: ${bill.createdBy.gstNumber}"
+            .format("GST No")
+        customerName.text = "$infoFormat: ${bill.name}"
+            .format("Customer name")
+        customerAddress.text = "$infoFormat: ${bill.address}"
+            .format("Customer address")
+        customerPhone.text = "$infoFormat: ${bill.phone}"
+            .format("Customer phone")
 
         invoiceNumber.text = "Invoice ID: ${bill.id}"
         invoiceDate.text = "Date: ${DateTimeUtils.time(bill.createdAt)}"
-        eSugamNumber.text = "E-Sugam Number: ${bill.eSugamNumber}"
+        if (!isNullOrEmpty(bill.eSugamNumber)) {
+            eSugamNumber.text = "E-Sugam Number: ${bill.eSugamNumber}"
+        } else {
+            eSugamNumber.isVisible = false
+        }
         remark.text = "Remark: ${bill.remark}"
 
         carryForwardPrice.text = "Brought forward: ${roundPrice(carry)}"
@@ -126,16 +143,26 @@ class Invoice(
             carryForwardLabel.isVisible = false
             pageTotal.isVisible = false
             val priceFormat = "%-11s" // Max Length is from New Amount text
-            cGstText.text = "$priceFormat: ${roundPrice(totalGst)}".format("CGST")
-            sGstText.text = "$priceFormat: ${roundPrice(totalSgst)}".format("SGST")
-            discount.text = "$priceFormat: ${roundPrice(totalDiscount)}".format("Discount")
-            netAmount.text = "$priceFormat: ${roundPrice(totalAmount)}".format("Net Amount")
+            cGstText.text = "$priceFormat: ${roundPrice(totalGst)}"
+                .format("CGST")
+            sGstText.text = "$priceFormat: ${roundPrice(totalSgst)}"
+                .format("SGST")
+            discount.text = "$priceFormat: ${roundPrice(totalDiscount)}"
+                .format("Discount")
+            netAmount.text = ("$priceFormat: "
+                + currencyFormat.format(totalAmount))
+                .format("Net Amount")
+            if (roundPrice(totalAmount).toDouble() > 0.0)
+                amountInWords.text = GeneralUtils
+                    .convertToIndianCurrency(roundPrice(totalAmount).toString())
         } else {
             cGstText.isVisible = false
             sGstText.isVisible = false
             discount.isVisible = false
             netAmount.isVisible = false
+            amountInWords.isVisible = false
         }
+
         if (isPreview) pageNumberText.isVisible = false
     }
 
@@ -175,7 +202,9 @@ class Invoice(
         tableView.items.addAll(breakups)
     }
 
-    private fun wrapColumnText(it: TableColumn<Breakup, String>): TableCell<Breakup, String> {
+    private fun wrapColumnText(
+        it: TableColumn<Breakup, String>,
+    ): TableCell<Breakup, String> {
         val cell = TableCell<Breakup, String>()
         val text = Text()
         cell.graphic = text
@@ -185,7 +214,10 @@ class Invoice(
         return cell
     }
 
-    private fun <S, T> alignTableColumn(value: TableColumn<S, T>, alignment: String = "CENTER") {
+    private fun <S, T> alignTableColumn(
+        value: TableColumn<S, T>,
+        alignment: String = "CENTER",
+    ) {
         value.cellFactory = Callback<TableColumn<S?, T?>?, TableCell<S?, T?>?>(
             fun(_: TableColumn<S?, T?>?): TableCell<S?, T?> {
                 val cell = object : TableCell<S?, T?>() {
@@ -246,7 +278,7 @@ class Invoice(
                             it.price.totalPrice,
                             it.quantity
                         )
-                    )
+                    ).toDouble()
                 )
             )
             start++
@@ -257,12 +289,15 @@ class Invoice(
     private fun getGstString(price: Price) =
         "CGST @ ${price.gst}%, SGST @ ${price.sGst}%, Discount=${price.discount}"
 
-    private fun roundPrice(price: Double): Double =
-        "%.2f".format(price).toDouble()
+//    private fun roundPrice(price: Double): Double =
+//        "%.02f".format(price).toDouble()
+
+    private fun roundPrice(price: Double): String =
+        decimalFormat.format(price)
 
     private fun calculateItemsAmount(
         gst: Double, sGst: Double, discount: Double,
-        rate: Double, qty: Float
+        rate: Double, qty: Float,
     ): Double {
         var total = 0.0
         total += (rate * qty)
@@ -280,7 +315,7 @@ class Invoice(
     }
 
     private fun calculateItemAmount(
-        gst: Double, sGst: Double, discount: Double, rate: Double, qty: Float
+        gst: Double, sGst: Double, discount: Double, rate: Double, qty: Float,
     ): Double {
         var total = 0.0
         total += (rate * qty)

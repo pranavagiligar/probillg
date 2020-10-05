@@ -4,5 +4,5 @@ data class Setting(
     val user: User,
     val invoicePerPage: Int,
     val breakupPerInvoice: Int,
-    val eSugamRequired: Boolean
+    var eSugamRequired: Boolean
 ) : Base()

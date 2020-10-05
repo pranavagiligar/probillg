@@ -3,8 +3,6 @@ package com.probill.ui
 import com.probill.model.Item
 import com.probill.model.Unit
 import com.probill.repository.db.AppDb
-import com.probill.service.ApiService
-import com.probill.utility.GeneralUtils
 import javafx.event.ActionEvent
 import javafx.fxml.Initializable
 import javafx.scene.control.ChoiceBox
@@ -30,7 +28,7 @@ class UpdateItems(val item: Item, val callback: (success: Boolean) -> kotlin.Uni
         itemSgstField.text = item.price.sGst.toString()
 
         itemUnitField.items.addAll(
-            Unit.GRAM, Unit.KG, Unit.TON
+            Unit.GRAM, Unit.KG, Unit.QTL, Unit.TON
         )
         itemUnitField.value = item.unit
 

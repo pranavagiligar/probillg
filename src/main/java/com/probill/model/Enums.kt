@@ -1,7 +1,7 @@
 package com.probill.model
 
 enum class Unit {
-    GRAM, KG, TON
+    GRAM, KG, QTL, TON
 }
 
 enum class Table(private val table: String, clazz: Class<*>) {

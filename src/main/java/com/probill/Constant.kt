@@ -8,6 +8,7 @@ object Constant {
         const val UPDATE_ITEM = "Update Item"
     }
     const val DATABASE_NAME = "probill-cache"
-    const val BASE_URL = "https://us-central1-godfield-4ebfd.cloudfunctions.net"
-//    const val BASE_URL = "http://localhost"
+//    const val BASE_URL = "https://us-central1-godfield-4ebfd.cloudfunctions.net"
+    const val BASE_URL = "http://localhost"
+//    const val BASE_URL = "http://192.168.1.101"
 }

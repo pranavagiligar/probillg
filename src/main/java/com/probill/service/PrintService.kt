@@ -22,10 +22,10 @@ class PrintService {
         }
     }
 
-    fun print(node: Node) {
+    fun print(node: Node, stage: Stage) {
         val printer: Printer = Printer.getDefaultPrinter()
         val pageLayout: PageLayout = printer.createPageLayout(
-            Paper.LEGAL,
+            Paper.A5,
             PageOrientation.PORTRAIT,
             .1,
             .1,
@@ -35,13 +35,15 @@ class PrintService {
 //        val scaleX: Double = pageLayout.printableWidth / node.boundsInParent.width
 //        val scaleY: Double = pageLayout.printableHeight / node.boundsInParent.height
 //        node.transforms.add(Scale(scaleX, scaleY))
-        node.transforms.add(Transform.translate(100.0, 100.0))
+//        node.transforms.add(Transform.translate(100.0, 100.0))
+        node.transforms.add(Transform.translate(25.0, 20.0))
         node.prefHeight(pageLayout.printableHeight)
         node.prefWidth(pageLayout.printableWidth)
-        node.transforms.add(Scale(0.5, 0.5))
+        node.transforms.add(Scale(0.45, 0.45))
 
         val job: PrinterJob? = PrinterJob.createPrinterJob()
-        if (job != null /*&& job.showPrintDialog(sceneNode.scene.window)*/) {
+        job?.jobSettings?.printColor = PrintColor.MONOCHROME
+        if (job != null/* && job.showPrintDialog(stage)*/) {
 //            job.jobStatusProperty().addListener { observable, oldValue, newValue ->
 //                when (observable.value) {
 //                    PrinterJob.JobStatus.PRINTING -> Log.d(TAG, "Printing ${observable.value}")

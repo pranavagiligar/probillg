@@ -1,3 +1,17 @@
+## Probill - A Bill generator
+
+Apache Derby embedded database access using `ij` tool
+```
+    cd /Users/lenskart/Documents/pproject/probill
+    java -jar /Users/lenskart/Documents/development/db-derby-10.14.2.0-lib/lib/derbyrun.jar ij
+
+    ij> 
+    CONNECT 'jdbc:derby:probill-cache';    
+    SHOW TABLES;
+    DESCRIBE TABLES:
+    DISCONNECT ALL;
+```
+
 Useful links
 
     https://github.com/openjfx/openjfx-docs/issues/55
@@ -10,7 +24,7 @@ Useful links
     
     https://openjfx.io/openjfx-docs/
 
-
+    https://freeicons.io/basic-symbol/bin-remove-garbage-recycle-trash-delete-icon-38493#
 
 jdk11 installation
 
