@@ -25,12 +25,14 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
 import javafx.util.Callback
+import javafx.util.Duration
 import javafx.util.StringConverter
 import kotlinx.coroutines.GlobalScope
 import java.sql.Timestamp
 import java.util.*
 import javax.imageio.ImageIO
 import kotlin.concurrent.timer
+import kotlin.system.exitProcess
 
 
 class MainWindow(var stage: Stage) : BaseUi() {
@@ -75,6 +77,7 @@ class MainWindow(var stage: Stage) : BaseUi() {
 
     // Setting tab
     lateinit var eSugamCheckBox: CheckBox
+    lateinit var printSettingsCheckBox: CheckBox
 
     private var itemsIndex = 0
 
@@ -97,6 +100,14 @@ class MainWindow(var stage: Stage) : BaseUi() {
         var qty: Float,
         var unit: String,
     )
+
+    init {
+        stage.setOnCloseRequest {
+            expiryTimer?.cancel()
+            pollTimer?.cancel()
+            exitProcess(0)
+        }
+    }
 
     fun initialize() {
         populateChoiceItems(AppDb.itemDao.readAll())
@@ -182,6 +193,8 @@ class MainWindow(var stage: Stage) : BaseUi() {
             AppDb.settingDao
                 .getSettingForUsername(it.username)?.let { setting ->
                     eSugamCheckBox.isSelected = setting.eSugamRequired
+                    printSettingsCheckBox.isSelected =
+                        setting.printSettingsRequired
                 }
         }
     }
@@ -337,7 +350,18 @@ class MainWindow(var stage: Stage) : BaseUi() {
                             showPreview(bill, AppDb.breakupDao.getBreakupByBill(bill))
                         }
                         printButton.setOnAction {
-                            printInit(billTableView.items[index])
+                            val bill = billTableView.items[index]
+                            val alert = Alert(
+                                Alert.AlertType.CONFIRMATION,
+                                "Do you want to print the invoice "
+                                    + "[${bill.id}] ?",
+                                ButtonType.OK, ButtonType.CANCEL
+                            )
+                            val result =
+                                alert.showAndWait().orElse(ButtonType.NO)
+                            if (result == ButtonType.OK) {
+                                printInit(bill)
+                            }
                         }
                     }
                 }
@@ -585,6 +609,16 @@ class MainWindow(var stage: Stage) : BaseUi() {
         }
     }
 
+    fun printSettingsCheckChanged(action: ActionEvent) {
+        user?.let {
+            AppDb.settingDao
+                .getSettingForUsername(it.username)?.let { setting ->
+                    setting.printSettingsRequired = printSettingsCheckBox.isSelected
+                    AppDb.settingDao.update(setting)
+                }
+        }
+    }
+
     private fun actionOnItemModify() {
         val items = AppDb.itemDao.readAll()
         manageItemTableView.items.clear()
@@ -785,7 +819,7 @@ class MainWindow(var stage: Stage) : BaseUi() {
                         offset == papers - 1
                     )
                 )
-                PrintService().print(box, stage, bill.name)
+                PrintService().print(box, stage, bill.name, offset == 0)
                 offset++
             }
             reset()

@@ -35,15 +35,16 @@ class SettingDao: BaseDao<Setting>() {
         AppDb.connection.prepareStatement(
             "UPDATE $tableName SET "
                 + "$UPDATED_AT = ?, $USERNAME = ?, $BREAKUP_PER_INVOICE = ?, "
-                + "$INVOICE_PER_PAGE = ?, $ESUGAM_REQUIRED = ? "
-                + "WHERE $ID = ?"
+                + "$INVOICE_PER_PAGE = ?, $ESUGAM_REQUIRED = ?, " +
+                "$PRINT_SETTINGS_REQUIRED = ? WHERE $ID = ?"
         )?.apply {
             this.setTimestamp(1, now)
             this.setString(2, setting.user.username)
             this.setInt(3, setting.breakupPerInvoice)
             this.setInt(4, setting.invoicePerPage)
             this.setBoolean(5, setting.eSugamRequired)
-            this.setLong(6, setting.id)
+            this.setBoolean(6, setting.printSettingsRequired)
+            this.setLong(7, setting.id)
             this.execute()
             success = this.updateCount > 0
         }?.close()
@@ -88,7 +89,8 @@ class SettingDao: BaseDao<Setting>() {
                 it,
                 resultSet.getInt(5),
                 resultSet.getInt(6),
-                resultSet.getBoolean(7)
+                resultSet.getBoolean(7),
+                resultSet.getBoolean(8)
             ).apply {
                 fillBaseFromResultSet(this, resultSet)
             }

@@ -47,9 +47,6 @@ class LoginFlow(private val primaryStage: Stage) : Initializable {
                 javaClass.getResource("/application.css").toExternalForm()
             )
             stage.title = Constant.APP_NAME
-            stage.setOnCloseRequest {
-                exitProcess(0)
-            }
             stage.scene = Scene(root)
             parentStage.close()
             stage.show()
@@ -98,7 +95,8 @@ class LoginFlow(private val primaryStage: Stage) : Initializable {
                 user,
                 login.invoicePerPage,
                 login.breakupPerInvoice,
-                login.eSugamRequired
+                login.eSugamRequired,
+                false
             )
 
             val existingUser = AppDb.userDao.getByUsername(login.username)

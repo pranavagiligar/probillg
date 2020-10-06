@@ -43,6 +43,7 @@ const val COUNT = "count"
 const val INVOICE_PER_PAGE = "invoice_per_page"
 const val BREAKUP_PER_INVOICE = "breakup_per_invoice"
 const val ESUGAM_REQUIRED = "esugam_required"
+const val PRINT_SETTINGS_REQUIRED = "print_setting_required"
 
 //META
 const val IS_LOGGED_IN = "is_logged_in"

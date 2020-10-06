@@ -123,6 +123,7 @@ class DDL(val table: Table, private val queries: String) {
                     $BREAKUP_PER_INVOICE INT,
                     $INVOICE_PER_PAGE INT,
                     $ESUGAM_REQUIRED BOOLEAN,
+                    $PRINT_SETTINGS_REQUIRED BOOLEAN DEFAULT FALSE,
                     CONSTRAINT SETTING_ID_PK PRIMARY KEY ($ID),
                     CONSTRAINT USR_NAME_FK FOREIGN KEY ($USERNAME) REFERENCES ${Table.USERS} ($USERNAME)
                 )
