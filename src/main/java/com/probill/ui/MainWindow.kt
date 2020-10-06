@@ -392,6 +392,8 @@ class MainWindow(var stage: Stage) : BaseUi() {
                             deleteView.isPreserveRatio = true
                             modify.graphic = editView
                             delete.graphic = deleteView
+                            modify.tooltip = Tooltip("Modify")
+                            delete.tooltip = Tooltip("Delete")
                             modify.setPrefSize(10.0, 10.0)
                             delete.setPrefSize(10.0, 10.0)
                             box = HBox(modify, delete)
