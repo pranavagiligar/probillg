@@ -2,8 +2,8 @@
 
 Apache Derby embedded database access using `ij` tool
 ```
-    cd /Users/lenskart/Documents/pproject/probill
-    java -jar /Users/lenskart/Documents/development/db-derby-10.14.2.0-lib/lib/derbyrun.jar ij
+    cd /Users/pranava/Documents/pproject/probill
+    java -jar /Users/pranava/Documents/development/db-derby-10.14.2.0-lib/lib/derbyrun.jar ij
 
     ij> 
     CONNECT 'jdbc:derby:probill-cache';    
